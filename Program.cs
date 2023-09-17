@@ -1,4 +1,5 @@
-﻿using static System.Console;
+﻿using Microsoft.Data.SqlClient;
+using static System.Console;
 //File scoped namespace, namespace to group the different files
 namespace ProductManager;
 
@@ -137,7 +138,39 @@ class Program
 
     private static void SaveProduct(Product product)
     {
-        // add the new product
-        products.Add(product);
+        // create sql command
+        var sql = $@"
+            INSERT INTO Product( 
+                 ProductName,
+                 ProductSku,
+                 ProductDescription,
+                 ProductPicture,
+                 ProductPrice
+            ) VALUES (
+                 @ProductName,
+                 @ProductSku,
+                 @ProductDescription,
+                 @ProductPicture,
+                 @ProductPrice
+            )";
+
+        // create the connection to database
+        using var connection = new SqlConnection("Server=.;Database=ProductManager;Integrated Security=true;Encrypt=False");
+
+        // create command 
+        using var command = new SqlCommand(sql, connection);
+
+        // add value to the sql
+        command.Parameters.AddWithValue("@ProductName", product.ProductName);
+        command.Parameters.AddWithValue("@ProductSku", product.ProductSku);
+        command.Parameters.AddWithValue("@ProductDescription", product.ProductDescription);
+        command.Parameters.AddWithValue("@ProductPicture", product.ProductPicture);
+        command.Parameters.AddWithValue("@ProductPrice", product.ProductPrice);
+
+        connection.Open();
+
+        command.ExecuteNonQuery();
+
+        connection.Close();
     }
 }
