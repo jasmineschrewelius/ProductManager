@@ -39,7 +39,8 @@ class Program
                 case ConsoleKey.D2:
                 case ConsoleKey.NumPad2:
 
-                    WriteLine("Du har valt 2");
+                    // call function to search for a product
+                    SearchProductView();
 
                     break;
 
@@ -94,6 +95,44 @@ class Program
 
             Thread.Sleep(2000);
         
+    }
+
+    private static void SearchProductView()
+    {
+        // ask user for SKU
+        Write("SKU:");
+
+        string productSku = ReadLine();
+
+        // call search funtion for the SKU
+        var product = SearchProductView(productSku);
+
+        // if we find a product with that SKU, do this
+        if( product is not null)
+        {
+            // write out the information about the product we found
+            WriteLine($"Namn: {product.ProductName}");
+            WriteLine($"SKU: {product.ProductSku}");
+            WriteLine($"Beskrivning: {product.ProductDescription}");
+            WriteLine($"Bild (URL): {product.ProductPicture}");
+            WriteLine($"Pris: {product.ProductPrice}");
+
+            // while loop, the product information will show until key pressed is not equal to Escape key
+            while (ReadKey(true).Key != ConsoleKey.Escape);
+        }
+        else
+        {
+            WriteLine("Hittade ingen produkt");
+
+            Thread.Sleep(2000);
+        }
+
+    }
+
+    private static Product? SearchProductView(string productSku) // will return a product or null(no value)
+    {
+        // search our saved List after the product with that SKU
+        return products.Find(product => product.ProductSku == productSku);
     }
 
     private static void SaveProduct(Product product)
