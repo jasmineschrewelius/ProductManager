@@ -5,8 +5,8 @@ namespace ProductManager;
 
 class Program
 {
-    // to save product need to create list 
-    static List<Product> products = new List<Product>();
+    //global variable for connection with database
+    static string connectionString = "Server=.;Database=ProductManager;Integrated Security=true;Encrypt=False";
 
     static void Main()
     {
@@ -105,8 +105,10 @@ class Program
 
         string productSku = ReadLine();
 
+        Clear();
+
         // call search funtion for the SKU
-        var product = SearchProductView(productSku);
+        var product = SearchProductBySku(productSku);
 
         // if we find a product with that SKU, do this
         if( product is not null)
@@ -130,11 +132,55 @@ class Program
 
     }
 
-    private static Product? SearchProductView(string productSku) // will return a product or null(no value)
-    {
-        // search our saved List after the product with that SKU
-        return products.Find(product => product.ProductSku == productSku);
-    }
+    
+
+   
+   private static Product? SearchProductBySku(string productSku) // will return a product or null(no value)
+   {
+        // create sql command
+        var sql = @"
+            SELECT ProductName,
+                 ProductSku,
+                 ProductDescription,
+                 ProductPicture,
+                 ProductPrice
+            FROM Product
+            WHERE ProductSku = @ProductSku    
+         ";
+        // create connection to databas
+        using var connection = new SqlConnection(connectionString);
+
+        // create comman
+        using var command = new SqlCommand(sql, connection);
+
+        // ass value to the sql command
+        command.Parameters.AddWithValue("@ProductSku", productSku);
+
+        // open connection
+        connection.Open();
+
+        // we want data back and to read it
+        var reader = command.ExecuteReader();
+
+        // read = true or false, if product true, found get this information
+        var product = reader.Read()
+            ? new Product
+            {
+                ProductName = reader["ProductName"].ToString(),
+                ProductSku = reader["ProductSku"].ToString(),
+                ProductDescription = reader["ProductDescription"].ToString(),
+                ProductPicture = reader["ProductPicture"].ToString(),
+                ProductPrice = reader["ProductPrice"].ToString()
+
+            }
+            : default; // if false it returns null
+
+        // close connection
+        connection.Close();
+
+
+        return product; 
+   }
 
     private static void SaveProduct(Product product)
     {
@@ -155,7 +201,7 @@ class Program
             )";
 
         // create the connection to database
-        using var connection = new SqlConnection("Server=.;Database=ProductManager;Integrated Security=true;Encrypt=False");
+        using var connection = new SqlConnection(connectionString);
 
         // create command 
         using var command = new SqlCommand(sql, connection);
