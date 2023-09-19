@@ -55,9 +55,9 @@ class Program
         }
     }
 
-    // show the different product info needed
+    // create RegisterProduct view
     private static void RegisterProduct()
-    {
+    {   // write out information needed
         Write("Namn:");
 
         string productName = ReadLine();
@@ -78,7 +78,7 @@ class Program
 
         string productPrice = ReadLine();
 
-        // create product
+        // create new product using information input from user
         var product = new Product
         {
             ProductName = productName,
@@ -90,14 +90,16 @@ class Program
         // ask if information is correct
         WriteLine("Är detta korrekt? [J]A  [N]EJ");
 
+        // read key pressed
         var keyPressed = ReadKey(intercept: true);
+
         // clear screen
         Clear();
 
         switch (keyPressed.Key)
             {   
-                case ConsoleKey.J: // if J key is pressed by user, call save product function
-                    // call function to save the product
+                case ConsoleKey.J: // if J key is pressed, call save product function
+                    
                     SaveProduct(product);
 
                     WriteLine("Produkt Sparad");
@@ -106,17 +108,17 @@ class Program
 
                     break;
             
-                case ConsoleKey.N: // if N key is pressed, clear screen and start the information needed again
+                case ConsoleKey.N: // if N key is pressed, start RegisterProduct view again
                     RegisterProduct();
 
                     break;    
             }        
    
     }
-
+    // create SaveProduct
     private static void SaveProduct(Product product)
     {
-        // create instance of DbContext
+        // create  DbContext object
         using var context = new ApplicationDbContext();
         
             //use context to add product
@@ -125,7 +127,7 @@ class Program
             // save change
             context.SaveChanges();
     }
-
+    // create SearchProduct view
     private static void SearchProductView()
     {
         // ask user for SKU
@@ -135,7 +137,7 @@ class Program
 
         Clear();
 
-        // call search funtion for the SKU
+        // let product be equal to function SearchProductBySku
         var product = SearchProductBySku(productSku);
 
         // if we find a product with that SKU, do this
@@ -148,10 +150,24 @@ class Program
             WriteLine($"Bild (URL): {product.ProductPicture}");
             WriteLine($"Pris: {product.ProductPrice}");
 
-            // while loop, the product information will show until key pressed is not equal to Escape key
-            while (ReadKey(true).Key != ConsoleKey.Escape);
+            WriteLine("[R]ADERA");
+
+            var keyPressed = ReadKey(intercept: true);
+
+            switch (keyPressed.Key)
+            {
+                case ConsoleKey.R: // if key pressed R, call function DeleteProduct
+
+                    DeleteProduct(product);
+
+                    break;
+
+                case ConsoleKey.Escape: // if key pressed Escape, go back to menu
+
+                    break;    
+            }        
         }
-        else
+        else // if no product found, write that out to user
         {
             WriteLine("Hittade ingen produkt");
 
@@ -159,13 +175,24 @@ class Program
         }
 
     }
-
-    
-
-   
-   private static Product? SearchProductBySku(string productSku) // will return a product or null(no value)
+    // create DeleteProduct function
+    private static void DeleteProduct(Product product)
     {
-        // create instance of DbContext
+        // create DbContext object
+        using var context = new ApplicationDbContext();
+        // remove the product
+        context.Product.Remove(product);
+        // save the changes
+        context.SaveChanges();
+
+        WriteLine("Produkt raderat!");
+
+        Thread.Sleep(2000);
+    }
+    // create SearchProductBySku function
+    private static Product? SearchProductBySku(string productSku) // will return a product or null(no value)
+    {
+        // create DbContext object
         using var context = new ApplicationDbContext();
 
         // use context to find product by sku, will contain a referens to the product or a default (null)
