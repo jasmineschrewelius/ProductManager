@@ -1,14 +1,12 @@
-﻿using Microsoft.Data.SqlClient;
+﻿using ProductManager.Data;
 using static System.Console;
+
 //File scoped namespace, namespace to group the different files
 namespace ProductManager;
 
 class Program
 {
-    //global variable for connection with database
-    static string connectionString = "Server=.;Database=ProductManager;Integrated Security=true;Encrypt=False";
-
-    static void Main()
+        static void Main()
     {
         CursorVisible = false;
         Title = "Product Manager";
@@ -98,6 +96,18 @@ class Program
         
     }
 
+    private static void SaveProduct(Product product)
+    {
+        // create instance of DbContext
+        using var context = new ApplicationDbContext();
+        
+            //use context to add product
+            context.Product.Add(product);
+
+            // save change
+            context.SaveChanges();
+    }
+
     private static void SearchProductView()
     {
         // ask user for SKU
@@ -136,87 +146,17 @@ class Program
 
    
    private static Product? SearchProductBySku(string productSku) // will return a product or null(no value)
-   {
-        // create sql command
-        var sql = @"
-            SELECT ProductName,
-                 ProductSku,
-                 ProductDescription,
-                 ProductPicture,
-                 ProductPrice
-            FROM Product
-            WHERE ProductSku = @ProductSku    
-         ";
-        // create connection to databas
-        using var connection = new SqlConnection(connectionString);
-
-        // create comman
-        using var command = new SqlCommand(sql, connection);
-
-        // ass value to the sql command
-        command.Parameters.AddWithValue("@ProductSku", productSku);
-
-        // open connection
-        connection.Open();
-
-        // we want data back and to read it
-        var reader = command.ExecuteReader();
-
-        // read = true or false, if product true, found get this information
-        var product = reader.Read()
-            ? new Product
-            {
-                ProductName = reader["ProductName"].ToString(),
-                ProductSku = reader["ProductSku"].ToString(),
-                ProductDescription = reader["ProductDescription"].ToString(),
-                ProductPicture = reader["ProductPicture"].ToString(),
-                ProductPrice = reader["ProductPrice"].ToString()
-
-            }
-            : default; // if false it returns null
-
-        // close connection
-        connection.Close();
-
-
-        return product; 
-   }
-
-    private static void SaveProduct(Product product)
     {
-        // create sql command
-        var sql = $@"
-            INSERT INTO Product( 
-                 ProductName,
-                 ProductSku,
-                 ProductDescription,
-                 ProductPicture,
-                 ProductPrice
-            ) VALUES (
-                 @ProductName,
-                 @ProductSku,
-                 @ProductDescription,
-                 @ProductPicture,
-                 @ProductPrice
-            )";
+        // create instance of DbContext
+        using var context = new ApplicationDbContext();
 
-        // create the connection to database
-        using var connection = new SqlConnection(connectionString);
+        // use context to find product by sku, will contain a referens to the product or a default (null)
+        var product = context
+            .Product
+            .FirstOrDefault(product => product.ProductSku == productSku);
 
-        // create command 
-        using var command = new SqlCommand(sql, connection);
-
-        // add value to the sql
-        command.Parameters.AddWithValue("@ProductName", product.ProductName);
-        command.Parameters.AddWithValue("@ProductSku", product.ProductSku);
-        command.Parameters.AddWithValue("@ProductDescription", product.ProductDescription);
-        command.Parameters.AddWithValue("@ProductPicture", product.ProductPicture);
-        command.Parameters.AddWithValue("@ProductPrice", product.ProductPrice);
-
-        connection.Open();
-
-        command.ExecuteNonQuery();
-
-        connection.Close();
+        // then return the product
+        return product;   
     }
+
 }
