@@ -55,6 +55,7 @@ class Program
         }
     }
 
+    // show the different product info needed
     private static void RegisterProduct()
     {
         Write("Namn:");
@@ -86,14 +87,31 @@ class Program
             ProductPicture = productPicture,
             ProductPrice = productPrice
         };
+        // ask if information is correct
+        WriteLine("Är detta korrekt? [J]A  [N]EJ");
 
-            // call function to save the product
-            SaveProduct(product);
+        var keyPressed = ReadKey(intercept: true);
+        // clear screen
+        Clear();
 
-            WriteLine("Produkt Sparad");
+        switch (keyPressed.Key)
+            {   
+                case ConsoleKey.J: // if J key is pressed by user, call save product function
+                    // call function to save the product
+                    SaveProduct(product);
 
-            Thread.Sleep(2000);
-        
+                    WriteLine("Produkt Sparad");
+
+                    Thread.Sleep(2000);
+
+                    break;
+            
+                case ConsoleKey.N: // if N key is pressed, clear screen and start the information needed again
+                    RegisterProduct();
+
+                    break;    
+            }        
+   
     }
 
     private static void SaveProduct(Product product)
