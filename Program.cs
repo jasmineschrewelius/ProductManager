@@ -124,7 +124,7 @@ class Program
             //use context to add product
             context.Product.Add(product);
 
-            // save change
+            // here it saves the changes to our database using sql
             context.SaveChanges();
     }
     // create SearchProduct view
@@ -182,7 +182,7 @@ class Program
         using var context = new ApplicationDbContext();
         // remove the product
         context.Product.Remove(product);
-        // save the changes
+        // here it saves the changes to our database using sql
         context.SaveChanges();
 
         WriteLine("Produkt raderat!");
