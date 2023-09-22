@@ -60,23 +60,23 @@ class Program
     {   // write out information needed
         Write("Namn:");
 
-        string productName = ReadLine();
+        string productName = ReadLine() ?? "";
 
         Write("SKU:");
 
-        string productSku = ReadLine();
+        string productSku = ReadLine() ?? "";
 
         Write("Beskrivning:");
 
-        string productDescription = ReadLine();
+        string productDescription = ReadLine()  ?? "";
 
         Write("Bild (URL):");
 
-        string productPicture = ReadLine();
+        string productPicture = ReadLine()  ?? "";
 
         Write("Pris:");
 
-        string productPrice = ReadLine();
+        string productPrice = ReadLine() ?? "";
 
         // create new product using information input from user
         var product = new Product
@@ -116,16 +116,16 @@ class Program
    
     }
     // create SaveProduct
-    private static void SaveProduct(Product product)
+    private static void SaveProduct(Product product) 
     {
         // create  DbContext object
         using var context = new ApplicationDbContext();
         
-            //use context to add product
-            context.Product.Add(product);
+        //use context to add product
+        context.Product.Add(product);
 
-            // here it saves the changes to our database using sql
-            context.SaveChanges();
+        // here it saves the changes to our database using sql
+        context.SaveChanges();
     }
     // create SearchProduct view
     private static void SearchProductView()
@@ -133,7 +133,7 @@ class Program
         // ask user for SKU
         Write("SKU:");
 
-        string productSku = ReadLine();
+        string productSku = ReadLine() ?? "";
 
         Clear();
 
@@ -156,11 +156,12 @@ class Program
 
             switch (keyPressed.Key)
             {
-                case ConsoleKey.R: // if key pressed R, call function DeleteProduct
+                case ConsoleKey.R: // if key pressed R
 
                     DeleteProduct(product);
-
+                    
                     break;
+                    
 
                 case ConsoleKey.Escape: // if key pressed Escape, go back to menu
 
